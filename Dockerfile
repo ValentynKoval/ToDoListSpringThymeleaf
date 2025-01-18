@@ -5,7 +5,8 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file (замените на имя вашего JAR)
-COPY target/my-app-0.0.1-SNAPSHOT.jar app.jar
+# Для Maven
+COPY target/ToDoList-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose port
 EXPOSE 8080
