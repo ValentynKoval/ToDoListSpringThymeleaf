@@ -1,15 +1,11 @@
-# Use OpenJDK 17 as base image
-FROM openjdk:17-jdk-slim
+# Устанавливаем базовый образ Java
+FROM eclipse-temurin:17-jdk-jammy
 
-# Set working directory
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Copy the JAR file (замените на имя вашего JAR)
-# Для Maven
-COPY target/ToDoList-0.0.1-SNAPSHOT.jar ToDoList.jar
+# Копируем файл JAR
+COPY target/*.jar app.jar
 
-# Expose port
-EXPOSE 8080
-
-# Run the application
+# Устанавливаем команду для запуска приложения
 ENTRYPOINT ["java", "-jar", "app.jar"]
