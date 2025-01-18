@@ -7,6 +7,8 @@ import com.example.todolist.mappers.UserMapper;
 import com.example.todolist.models.Role;
 import com.example.todolist.models.User;
 import com.example.todolist.repo.UserRepository;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -50,5 +52,9 @@ public class UserService implements UserDetailsService {
 
     public ResponseUserDto getUserDtoByEmail(String email) {
         return responseUserMapper.toDto(getUserByEmail(email));
+    }
+
+    public boolean emailExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

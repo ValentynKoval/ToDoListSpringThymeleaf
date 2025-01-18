@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping("/user/register")
-    public String registerUser(@Valid @ModelAttribute("userDto") UserDto userDto,
+    public String registerUser(@ModelAttribute("userDto") @Valid UserDto userDto,
                                BindingResult result,
                                Model model) {
         if (result.hasErrors()) {
@@ -54,6 +54,16 @@ public class UserController {
 
         if (!userDto.passwordsMatch()) {
             model.addAttribute("passwordError", "Passwords do not match");
+            return "register";
+        }
+
+        if (userDto.getPassword().length() < 8) {
+            model.addAttribute("passwordError", "Password must be at least 8 characters long.");
+            return "register";
+        }
+
+        if (userService.emailExists(userDto.getEmail())) {
+            model.addAttribute("emailError", "Email is already in use.");
             return "register";
         }
 
