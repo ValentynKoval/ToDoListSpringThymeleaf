@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base.html :: head"></head>
+<body>
+<header th:replace="base.html :: header"></header>
+<main class="container my-5">
+    <div class="text-center">
+        <h1>Welcome to ToDoList!</h1>
+        <p class="lead">Manage your tasks efficiently and never miss a deadline again!</p>
+    </div>
+    <section class="my-5">
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Organize Your Tasks</h5>
+                        <p class="card-text">Create, edit, and delete tasks with ease.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Stay On Track</h5>
+                        <p class="card-text">Mark tasks as complete and track your progress.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Share with Others</h5>
+                        <p class="card-text">Generate sharable links to collaborate with others.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="text-center my-5">
+        <a th:href="@{/tasks}" class="btn btn-primary btn-lg">Get Started</a>
+    </div>
+</main>
+<footer th:replace="base.html :: footer"></footer>
+</body>
+</html>

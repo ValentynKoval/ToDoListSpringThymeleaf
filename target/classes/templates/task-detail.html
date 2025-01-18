@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base.html :: head"></head>
+<body>
+<header th:replace="base.html :: header"></header>
+<main class="container my-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0" th:text="${task.title}">Task Title</h2>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Details</h5>
+            <p class="card-text"><strong>Task ID:</strong> <span id="taskId" th:text="${task.id}">123</span></p>
+            <p class="card-text"><strong>Description:</strong> <span th:text="${task.description}">Task description goes here.</span></p>
+            <p class="card-text"><strong>Create At:</strong> <span th:text="${task.createAt}">2025-01-01</span></p>
+            <p class="card-text"><strong>Due Date:</strong> <span th:text="${task.dueDate}">2025-01-01</span></p>
+            <p class="card-text">
+                <strong>Status:</strong>
+                <span th:if="${task.complete}" class="badge bg-success">Complete</span>
+                <span th:if="${!task.complete}" class="badge bg-warning">Incomplete</span>
+            </p>
+            <p class="card-text">
+                <strong>Shared:</strong>
+                <span th:if="${task.getIsShared()}" class="text-success">Yes</span>
+                <span th:if="${!task.getIsShared()}" class="text-danger">No</span>
+            </p>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a th:href="@{/tasks/{id}/edit(id=${task.id})}" class="btn btn-warning">Edit Task</a>
+            <button type="button" class="btn btn-info" onclick="generateShareLink()">Share</button>
+            <a th:href="@{/tasks}" class="btn btn-secondary">Back to Tasks</a>
+        </div>
+    </div>
+</main>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Shareable Link</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p>Here is your shareable link:</p>
+                <p class="text-break text-primary fw-bold" id="shareableLink"></p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-secondary" onclick="copyToClipboard()">Copy Link</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    function generateShareLink() {
+        // Get Task ID from the page
+        const taskId = document.getElementById("taskId").textContent.trim();
+
+        if (!taskId) {
+            alert('Task ID is missing!');
+            return;
+        }
+
+        // Make a POST request to generate the shareable link
+        fetch(`/tasks/${taskId}/share`, {
+            method: 'POST',
+            credentials: 'include', // Include cookies with the request
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to generate shareable link');
+                }
+                return response.text();
+            })
+            .then(link => {
+                // Display the link in the modal
+                document.getElementById('shareableLink').textContent = link;
+
+                // Show the modal
+                const shareModal = new bootstrap.Modal(document.getElementById('shareModal'));
+                shareModal.show();
+            })
+            .catch(error => {
+                console.error(error.message);
+                alert('An error occurred while generating the shareable link.');
+            });
+    }
+
+    function copyToClipboard() {
+        const shareableLinkElement = document.getElementById("shareableLink");
+        const link = shareableLinkElement.textContent.trim();
+
+        if (!link) {
+            alert("No link to copy!");
+            return;
+        }
+
+        navigator.clipboard.writeText(link);
+            // .then(() => alert("Link copied to clipboard!"))
+            // .catch(err => console.error("Failed to copy link:", err));
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<footer th:replace="base.html :: footer"></footer>
+</body>
+</html>
