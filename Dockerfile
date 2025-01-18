@@ -1,11 +1,11 @@
-# Устанавливаем базовый образ Java
-FROM eclipse-temurin:17-jdk-jammy
+# Укажите базовый образ
+FROM openjdk:17-jdk-slim
 
-# Устанавливаем рабочую директорию
+# Установите рабочую директорию
 WORKDIR /app
 
-# Копируем файл JAR
+# Скопируйте собранный JAR-файл в контейнер
 COPY target/*.jar app.jar
 
-# Устанавливаем команду для запуска приложения
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Укажите команду запуска
+CMD ["java", "-jar", "app.jar"]
