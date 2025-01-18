@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @Configuration
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_MATCHERS = {"/api/auth/register", "/api/auth/login", "/api/auth/refresh"};
+    private static final String[] PUBLIC_MATCHERS = {"/", "/user/register", "/user/login", "/user/refresh", "/user/logout", "/favicon.ico"};
     private final UserService userService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -35,9 +36,19 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_MATCHERS).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
-                .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+                .formLogin(form -> form
+                        .loginPage("/user/login")
+                        .loginProcessingUrl("/user/login") // Ensure this matches your form's action URL
+                        .defaultSuccessUrl("/tasks", true) // Redirect on successful login
+                        .failureUrl("/user/login?error=true") // Redirect on login failure
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/user/logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e -> e.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/user/login")));
         return http.build();
 
     }

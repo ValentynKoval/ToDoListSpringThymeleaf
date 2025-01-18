@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base.html :: head"></head>
+<body>
+<header th:replace="base.html :: header"></header>
+<main class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Create New Task</h1>
+        <a th:href="@{/tasks}" class="btn btn-secondary">Back to Tasks</a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <!-- Task Creation Form -->
+            <form th:action="@{/tasks/create}" method="post" th:object="${taskDto}">
+                <!-- Title Field -->
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" id="title" name="title" th:field="*{title}" class="form-control" required>
+                    <div th:if="${#fields.hasErrors('title')}" class="text-danger" th:text="${#fields.errors('title')}"></div>
+                </div>
+
+                <!-- Description Field -->
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" th:field="*{description}" class="form-control" rows="4"></textarea>
+                    <div th:if="${#fields.hasErrors('description')}" class="text-danger" th:text="${#fields.errors('description')}"></div>
+                </div>
+
+                <!-- Due Date Field -->
+                <div class="mb-3">
+                    <label for="dueDate" class="form-label">Due Date</label>
+                    <input type="datetime-local" id="dueDate" name="dueDate" th:field="*{dueDate}" class="form-control" required>
+                    <div th:if="${#fields.hasErrors('dueDate')}" class="text-danger" th:text="${#fields.errors('dueDate')}"></div>
+                </div>
+
+                <!-- Completion Status Field -->
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="isComplete" name="isComplete" th:field="*{isComplete}" class="form-check-input">
+                    <label for="isComplete" class="form-check-label">Mark as Complete</label>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="base.html :: footer"></footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dateTimeField = document.getElementById("dueDate");
+        const now = new Date();
+        const formattedDate = now.toISOString().slice(0, 16); // Формат yyyy-MM-ddTHH:mm
+        dateTimeField.value = formattedDate;
+    });
+</script>
+</body>
+</html>

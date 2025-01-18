@@ -33,21 +33,17 @@ public class JwtService {
     @Autowired
     private TokenRepository tokenRepository;
 
-    public Map<String, String> getTokens(User user) {
+    public String getTokens(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().toString());
 
         String accessToken = generateToken(claims, user.getEmail(), accessTokenDuration);
-        String refreshToken = generateToken(claims, user.getEmail(), refreshTokenDuration);
         Token token = new Token();
-        token.setToken(refreshToken);
+        token.setToken(accessToken);
         token.setUser(user);
         tokenRepository.save(token);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("access_token", accessToken);
-        response.put("refresh_token", refreshToken);
-        return response;
+        return accessToken;
     }
 
     private String generateToken(Map<String, Object> claims, String email, Duration duration) {

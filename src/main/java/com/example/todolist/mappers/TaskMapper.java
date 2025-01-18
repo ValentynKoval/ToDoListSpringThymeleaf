@@ -15,8 +15,8 @@ public class TaskMapper implements EntityMapper<Task, TaskDto> {
         task.setTitle(dto.getTitle());
         task.setDescription(dto.getDescription());
         task.setDueDate(toLocalDateTime(dto.getDueDate()));
-        task.setComplete(dto.isComplete());
-        task.setShared(dto.isShared());
+        task.setComplete(dto.getIsComplete());
+        task.setShared(dto.getIsShared());
         return task;
     }
 
@@ -26,8 +26,8 @@ public class TaskMapper implements EntityMapper<Task, TaskDto> {
         taskDto.setTitle(entity.getTitle());
         taskDto.setDescription(entity.getDescription());
         taskDto.setDueDate(toString(entity.getDueDate()));
-        taskDto.setComplete(entity.isComplete());
-        taskDto.setShared(entity.isShared());
+        taskDto.setIsComplete(entity.isComplete());
+        taskDto.setIsShared(entity.isShared());
         return taskDto;
     }
 

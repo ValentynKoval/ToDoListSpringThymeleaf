@@ -25,4 +25,20 @@ public class TaskDto {
 
     private boolean isComplete = false;
     private boolean isShared = false;
+
+    public Boolean getIsComplete() {
+        return this.isComplete;
+    }
+
+    public void setIsComplete(Boolean isComplete) {
+        this.isComplete = isComplete;
+    }
+
+    public Boolean getIsShared() {
+        return this.isShared;
+    }
+
+    public void setIsShared(Boolean isShared) {
+        this.isShared = isShared;
+    }
 }

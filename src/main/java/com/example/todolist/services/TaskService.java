@@ -24,7 +24,6 @@ public class TaskService {
 
     public Task createTask(TaskDto taskDto, User user) {
         Task task = taskMapper.toEntity(taskDto);
-        task.setCreateAt(LocalDateTime.now());
         task.setUser(user);
         return taskRepository.save(task);
     }

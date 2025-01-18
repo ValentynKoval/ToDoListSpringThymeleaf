@@ -2,6 +2,7 @@ package com.example.todolist.controllers;
 
 import com.example.todolist.dto.TaskDto;
 import com.example.todolist.mappers.ResponseTaskMapper;
+import com.example.todolist.mappers.TaskMapper;
 import com.example.todolist.models.Task;
 import com.example.todolist.models.User;
 import com.example.todolist.services.TaskService;
@@ -10,74 +11,147 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/tasks")
+@RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
     private final UserService userService;
     private final ResponseTaskMapper responseTaskMapper;
+    private final TaskMapper taskMapper;
 
-    @PostMapping()
-    public ResponseEntity<?> createTask(@Valid @RequestBody TaskDto taskDto) {
+    @GetMapping("/create")
+    public String showCreateTaskForm(Model model) {
+        model.addAttribute("taskDto", new TaskDto());
+        return "task-create"; // Thymeleaf template for task creation
+    }
+
+    @PostMapping("/create")
+    public String createTask(@Valid @ModelAttribute("taskDto") TaskDto taskDto,
+                             BindingResult result,
+                             Model model) {
+        if (result.hasErrors()) {
+            return "task-create";
+        }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
         Task task = taskService.createTask(taskDto, user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return String.format("redirect:/tasks/%s?created", task.getId());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getTaskById(@PathVariable long id) {
+    public String getTaskById(@PathVariable long id, Model model) {
         Task task = taskService.getTaskById(id);
         if (task == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "error/404";
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals(task.getUser().getEmail()) || task.isShared()) {
-            return new ResponseEntity<>(responseTaskMapper.toDto(task), HttpStatus.OK);
+        String userEmail = task.getUser().getEmail();
+        System.out.println(email + " " + userEmail);
+        if (!email.equals(task.getUser().getEmail()) && !task.isShared()) {
+            return "error/403";
         }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+
+        model.addAttribute("task", responseTaskMapper.toDto(task));
+        return "task-detail";
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTaskById(@PathVariable long id) {
+    @GetMapping("/{id}/edit")
+    public String showEditTaskForm(@PathVariable long id, Model model) {
+        Task task = taskService.getTaskById(id);
+
+        if (task == null) {
+            return "error/404";
+        }
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!email.equals(task.getUser().getEmail())) {
+            return "error/403";
+        }
+
+        model.addAttribute("taskDto", taskMapper.toDto(task));
+        model.addAttribute("taskId", id);
+        return "task-edit"; // Thymeleaf template for task editing
+    }
+
+    @PostMapping("/{id}/edit")
+    public String editTask(@PathVariable long id,
+                           @Valid @ModelAttribute("taskDto") TaskDto taskDto,
+                           BindingResult result,
+                           Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("taskId", id);
+            return "task-edit";
+        }
+
         Task task = taskService.getTaskById(id);
         if (task == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "error/404";
         }
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email.equals(task.getUser().getEmail())) {
-            taskService.deleteTaskById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+        if (!email.equals(task.getUser().getEmail())) {
+            return "error/403";
         }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        Task editedTask = taskMapper.toEntity(taskDto);
+        editedTask.setId(task.getId());
+        editedTask.setCreateAt(task.getCreateAt());
+        editedTask.setUser(task.getUser());
+
+        taskService.updateTask(editedTask);
+        return "redirect:/tasks?updated";
     }
 
-    @GetMapping()
-    public ResponseEntity<?> getAllTasks() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return new ResponseEntity<>(taskService.getAllTasks(email), HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}/share")
-    public ResponseEntity<?> shareTask(@PathVariable long id, HttpServletRequest request) {
+    @GetMapping("/{id}/delete")
+    public String deleteTaskById(@PathVariable long id) {
         Task task = taskService.getTaskById(id);
         if (task == null) {
-            return new ResponseEntity<>("Task not found", HttpStatus.NOT_FOUND);
+            return "error/404";
         }
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!email.equals(task.getUser().getEmail())) {
-            return new ResponseEntity<>("You can only share your own tasks", HttpStatus.FORBIDDEN);
+            return "error/403";
+        }
+        taskService.deleteTaskById(id);
+        return "redirect:/tasks?deleted";
+    }
+
+    @GetMapping()
+    public String getAllTasks(Model model) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        model.addAttribute("tasks", taskService.getAllTasks(email));
+        return "task-list";
+    }
+
+    @PostMapping("/{id}/share")
+    @ResponseBody
+    public String shareTask(@PathVariable long id,
+                            HttpServletRequest request) {
+        Task task = taskService.getTaskById(id);
+        if (task == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
+        }
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!email.equals(task.getUser().getEmail())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
         }
         task.setShared(true);
         taskService.updateTask(task);
 
-        String baseUrl = String.format("%s://%s:%d", request.getScheme(), request.getServerName(), request.getServerPort());
-        String sharedLink = String.format("%s/api/tasks/%d", baseUrl, task.getId());
-        return new ResponseEntity<>(sharedLink, HttpStatus.OK);
+//        String baseUrl = String.format("%s://%s:%d", request.getScheme(), request.getServerName(), request.getServerPort());
+//        String sharedLink = String.format("%s/api/tasks/%d", baseUrl, task.getId());
+//
+//        model.addAttribute("sharedLink", sharedLink);
+//        return "task-shared";
+        return request.getScheme() + "://" + request.getServerName() +
+                (request.getServerPort() != 80 ? ":" + request.getServerPort() : "") + "/tasks/" + task.getId();
     }
 }

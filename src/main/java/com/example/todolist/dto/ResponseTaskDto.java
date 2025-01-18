@@ -14,9 +14,19 @@ public class ResponseTaskDto {
 
     private String description;
 
-    private LocalDateTime createAt;
+    private String createAt;
 
-    private LocalDateTime dueDate;
+    private String dueDate;
 
     private boolean isComplete;
+
+    private boolean isShared;
+
+    public Boolean getIsShared() {
+        return this.isShared;
+    }
+
+    public void setIsShared(Boolean isShared) {
+        this.isShared = isShared;
+    }
 }

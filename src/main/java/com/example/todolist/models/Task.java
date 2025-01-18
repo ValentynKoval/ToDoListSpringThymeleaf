@@ -21,7 +21,7 @@ public class Task {
     @Column(name = "description", length = 1000)
     private String description;
 
-    @Column(name = "createAt", nullable = false)
+    @Column(name = "createAt", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
     @Column(name = "dueDate", nullable = false)
@@ -36,4 +36,9 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = LocalDateTime.now();
+    }
 }

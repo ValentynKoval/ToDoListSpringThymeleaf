@@ -8,7 +8,7 @@ import lombok.Data;
 public class AuthUserDto {
     @Email(message = "Email must be a valid email address")
     @NotBlank(message = "Email is required")
-    private String email;
+    private String username;
 
     @NotBlank(message = "Password is required")
     private String password;

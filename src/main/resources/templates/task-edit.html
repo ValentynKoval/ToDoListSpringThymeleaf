@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base.html :: head"></head>
+<body>
+<header th:replace="base.html :: header"></header>
+<main class="container my-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Edit Task</h2>
+        </div>
+        <div class="card-body">
+            <!-- Edit Task Form -->
+            <form th:action="@{/tasks/{id}/edit(id=${taskId})}" th:object="${taskDto}" method="post">
+                <!-- Task Title -->
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" name="title" th:field="*{title}" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                </div>
+
+                <!-- Task Description -->
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="4" th:field="*{description}"></textarea>
+                    <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+
+                <!-- Due Date -->
+                <div class="mb-3">
+                    <label for="dueDate" class="form-label">Due Date</label>
+                    <input type="datetime-local" class="form-control" id="dueDate" name="dueDate" th:field="*{dueDate}" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}"></div>
+                </div>
+
+                <!-- Task Status -->
+                <div class="mb-3">
+                    <label for="isComplete" class="form-label">Status</label>
+                    <select class="form-select" id="isComplete" name="isComplete" th:field="*{isComplete}">
+                        <option value="true" th:selected="*{isComplete}">Complete</option>
+                        <option value="false" th:selected="!(*{isComplete})">Incomplete</option>
+                    </select>
+                </div>
+
+                <!-- Shared Status -->
+                <div class="mb-3">
+                    <label for="isShared" class="form-label">Shared</label>
+                    <select class="form-select" id="isShared" name="isShared" th:field="*{isShared}">
+                        <option value="true" th:selected="*{isShared}">Yes</option>
+                        <option value="false" th:selected="!(*{isShared})">No</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex justify-content-end">
+                    <a th:href="@{/tasks}" class="btn btn-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="base.html :: footer"></footer>
+</body>
+</html>

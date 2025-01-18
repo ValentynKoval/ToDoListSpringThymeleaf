@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="base.html :: head"></head>
+<body>
+<header th:replace="base.html :: header"></header>
+<main class="container my-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">User Information</h2>
+        </div>
+        <div class="card-body">
+            <!-- User Information -->
+            <table class="table table-bordered">
+                <tbody>
+                <tr>
+                    <th scope="row">First Name</th>
+                    <td th:text="${user.firstName}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Last Name</th>
+                    <td th:text="${user.lastName}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Email</th>
+                    <td th:text="${user.email}"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Active</th>
+                    <td th:text="${user.active ? 'Yes' : 'No'}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-end">
+                <a th:href="@{/tasks}" class="btn btn-secondary me-2">Back to Tasks</a>
+                <a th:href="@{/user/logout}" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="base.html :: footer"></footer>
+</body>
+</html>
