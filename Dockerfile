@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy the JAR file (замените на имя вашего JAR)
 # Для Maven
-COPY target/ToDoList-0.0.1-SNAPSHOT.jar app.jar
+COPY target/ToDoList-0.0.1-SNAPSHOT.jar ToDoList.jar
 
 # Expose port
 EXPOSE 8080
