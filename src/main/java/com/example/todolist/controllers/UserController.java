@@ -71,7 +71,7 @@ public class UserController {
             User user = userService.createNewUser(userDto);
 //            String message = "Thank you for registering for our service! It will be very useful for you in planning your day and assigning tasks.";
 //            mailSenderService.send(user.getEmail(), "Registration", message);
-            String message = "Thank you for registering! I hope our site will help you structure your tasks)";
+            String message = "Thank you for registering! I hope our site will help you structure your tasks!)";
             mailSenderService.send(user.getEmail(), "Successful registration", message);
             return "redirect:/user/login?success";
         } catch (IllegalArgumentException e) {
